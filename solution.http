@@ -1,0 +1,75 @@
+
+GET http://localhost:8080/level1
+
+###
+
+GET http://localhost:8080/level2?limit=5
+
+###
+
+GET http://localhost:8080/level3/documents/47
+
+###
+
+HEAD http://localhost:8080/level4
+
+###
+
+HEAD http://localhost:8080/level5/documents/7
+If-Modified-Since: Thu, 01 Oct 2026 12:00:00 GMT
+
+###
+
+POST http://localhost:8080/level6
+
+###
+
+POST http://localhost:8080/level7
+Content-Type: application/x-www-form-urlencoded
+
+name=jim&email=Jim@example.org
+
+###
+
+PUT http://localhost:8080/level8
+Content-Type: application/json
+
+{}
+
+###
+
+PUT http://localhost:8080/level9/customers/11
+Authorization: Basic YWRtaW46dHJ1c3RubzE=
+
+###
+
+DELETE http://localhost:8080/level10/customers/23
+
+###
+
+DELETE http://localhost:8080/level11?id=23&id=42&id=31
+
+###
+
+DELETE http://localhost:8080/level12/documents/14
+Authorization: Basic YWRtaW46dHJ1c3RubzE=
+
+###
+
+OPTIONS http://localhost:8080/level13
+
+###
+
+PATCH http://localhost:8080/level14/customers/42
+Content-Type: application/merge-patch+json
+
+{
+  "email": "jim@example.org"
+}
+
+###
+
+QUERY http://localhost:8080/level15/search
+Content-Type: application/json
+
+{"q": "hatschepsut"}

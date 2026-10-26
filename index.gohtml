@@ -8,6 +8,8 @@
         body {
             font-family: Verdana, Geneva, Tahoma, sans-serif;
             background-color: papayawhip;
+            margin: 2em;
+            padding: 0;
         }
         code, pre {
             font-family: Consolas, 'Courier New', Courier, monospace;
@@ -21,6 +23,11 @@
             border: 1px solid black;
             padding: 0.5em 1.5em;
         }
+        th {
+            text-align: left;
+            background-color: silver;
+            font-weight: bold;
+        }
         caption {
             text-align: left;
             font-weight: bold;
@@ -31,6 +38,9 @@
             padding: 1em;
             margin: 1em 0;
             background-color: whitesmoke;
+        }
+        details summary {
+            cursor: pointer;
         }
         details section {
             padding: 1em;
@@ -44,20 +54,16 @@
             border: 2px solid darkgreen;
             background-color: lightgreen;
         }
+        details.solved summary::before {
+            content: '\2714';
+            margin-right: 0.25em;
+        }
         .failed {
             border: 2px solid darkred;
-            background-color: lightsalmon;
+            background-color: lightcoral;
         }
         var {
             font-style: italic;
-        }
-
-        @keyframes horizontal-shaking {
-            0% { transform: translateX(0) }
-            25% { transform: translateX(5px) }
-            50% { transform: translateX(-5px) }
-            75% { transform: translateX(5px) }
-            100% { transform: translateX(0) }
         }
     </style>
 </head>
@@ -67,7 +73,12 @@
 <details id="level{{ .ID }}" name="level"{{ if (eq $.OpenLevelID .ID )}} open{{ end }}{{ if (eq .State 1) }} class="solved"{{ else }}{{ if (eq .State 2)}} class="failed"{{ end }}{{ end }}>
     <summary>Level {{ .ID }}: {{ .Summary }}</summary>
     <section>
-        <p>{{ .Description }}</p>
+        <div>
+            {{ md .Description }}
+        </div>
+        <div>
+            <strong>Methode:</strong> <code>{{ .HttpMethod }}</code>
+        </div>
         <div>
             <strong>URL:</strong> <code>{{ $.BaseURL}}/level{{ .ID }}{{ .PathSuffix }}</code>
         </div>
@@ -78,13 +89,15 @@
                 <tr>
                     <th>Name</th>
                     <th>Ort</th>
+                    <th>Typ</th>
                 </tr>
             </thead>
             <tbody>
             {{ range .Params }}
                 <tr>
                     <td><code>{{ .Name }}</code></td>
-                    <td>{{ .Kind }}</td>
+                    <td>{{ .Location }}</td>
+                    <td>{{ if .Type }}{{ .Type }}{{ else }}String{{ end }}</td>
                 </tr>
             {{ end }}
             </tbody>
@@ -109,6 +122,16 @@
                 if (!lvl.classList.contains('solved')) {
                     lvl.classList.add('failed');
                 }
+                lvl.animate([
+                    { transform: "translateX(0)" },
+                    { transform: "translateX(0.5em)" },
+                    { transform: "translateX(-0.5em)" },
+                    { transform: "translateX(0.5em)" },
+                    { transform: "translateX(0)" }
+                ],{
+                    duration: 100,
+                    iterations: 2,
+                })
             }
         }
         console.log(`event: ${event.data}`);

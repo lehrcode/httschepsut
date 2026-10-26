@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
 	"flag"
 	"fmt"
@@ -9,6 +10,8 @@ import (
 	"net/http"
 
 	"github.com/lehrcode/httschepsut/store"
+	"github.com/yuin/goldmark/v2/parser"
+	"github.com/yuin/goldmark/v2/renderer/html"
 )
 
 var (
@@ -35,14 +38,32 @@ func main() {
 		baseURL = fmt.Sprintf("http://localhost:%d", port)
 	}
 
+	var (
+		mdp = parser.New()
+		mdr = html.New()
+	)
+
 	http.Handle("/{$}", &indexHandler{
-		tmpl: template.Must(template.New("index").Parse(indexTemplate)),
+		tmpl: template.Must(template.New("index").
+			Funcs(template.FuncMap{"md": func(src string) template.HTML {
+				var buf bytes.Buffer
+				node := mdp.ParseStringSource(src)
+				if err := mdr.RenderStringSource(&buf, src, node); err != nil {
+					slog.Error(err.Error())
+				}
+				return template.HTML(buf.String())
+			}}).
+			Parse(indexTemplate)),
 	})
 
 	http.HandleFunc("GET /events", sseHandler)
 
 	for _, level := range levels {
 		http.Handle("/level"+level.ID+level.PathSuffix, level)
+		if level.PathSuffix != "" {
+			http.Handle("/level"+level.ID, level)
+			http.Handle("/level"+level.ID+"/", level)
+		}
 	}
 
 	slog.Info(fmt.Sprintf("Starting server on http://localhost:%d/", port))

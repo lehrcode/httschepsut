@@ -7,8 +7,9 @@ import (
 )
 
 type Param struct {
-	Name string
-	Kind string
+	Name     string
+	Location string
+	Type     string
 }
 
 type Level struct {
@@ -16,6 +17,7 @@ type Level struct {
 	Summary     string
 	Description string
 	PathSuffix  string
+	HttpMethod  string
 	Params      []Param
 	Handler     func(w http.ResponseWriter, r *http.Request) int
 }
