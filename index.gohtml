@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Httschepsut</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: papayawhip;
+        }
+        code, pre {
+            font-family: Consolas, 'Courier New', Courier, monospace;
+        }
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid black;
+        }
+        td, th {
+            border: 1px solid black;
+            padding: 0.5em 1.5em;
+        }
+        caption {
+            text-align: left;
+            font-weight: bold;
+            margin: 1em 0;
+        }
+        details {
+            border: 2px solid black;
+            padding: 1em;
+            margin: 1em 0;
+            background-color: whitesmoke;
+        }
+        details section {
+            padding: 1em;
+            background-color: whitesmoke;
+            margin-top: 1em;
+        }
+        details section p {
+            margin: 0 0 1em 0;
+        }
+        .solved {
+            border: 2px solid darkgreen;
+            background-color: lightgreen;
+        }
+        .failed {
+            border: 2px solid darkred;
+            background-color: lightsalmon;
+        }
+        var {
+            font-style: italic;
+        }
+
+        @keyframes horizontal-shaking {
+            0% { transform: translateX(0) }
+            25% { transform: translateX(5px) }
+            50% { transform: translateX(-5px) }
+            75% { transform: translateX(5px) }
+            100% { transform: translateX(0) }
+        }
+    </style>
+</head>
+<body>
+<h1>Httschepsut</h1>
+{{ range .Levels }}
+<details id="level{{ .ID }}" name="level"{{ if (eq $.OpenLevelID .ID )}} open{{ end }}{{ if (eq .State 1) }} class="solved"{{ else }}{{ if (eq .State 2)}} class="failed"{{ end }}{{ end }}>
+    <summary>Level {{ .ID }}: {{ .Summary }}</summary>
+    <section>
+        <p>{{ .Description }}</p>
+        <div>
+            <strong>URL:</strong> <code>{{ $.BaseURL}}/level{{ .ID }}{{ .PathSuffix }}</code>
+        </div>
+        {{ if .Params }}
+        <table>
+            <caption>Parameter</caption>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Ort</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Params }}
+                <tr>
+                    <td><code>{{ .Name }}</code></td>
+                    <td>{{ .Kind }}</td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        {{ end }}
+    </section>
+</details>
+{{ end }}
+<script type="module">
+    const eventSrc = new EventSource("/events");
+
+    const list = document.getElementById("list");
+
+    eventSrc.onmessage = (event) => {
+        const eventData = JSON.parse(event.data);
+        const lvl = document.querySelector(`#level${eventData.id}`);
+        if (lvl) {
+            if (eventData.value === 1) {
+                lvl.classList.remove('failed');
+                lvl.classList.add('solved');
+            } else if (eventData.value === 2) {
+                if (!lvl.classList.contains('solved')) {
+                    lvl.classList.add('failed');
+                }
+            }
+        }
+        console.log(`event: ${event.data}`);
+    };
+</script>
+</body>
+</html>
